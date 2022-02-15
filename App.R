@@ -1,8 +1,9 @@
 # install the package
-install.packages("shiny")
+#install.packages("shiny")
 
 # importing the packages
 library(shiny)
+library(shinyWidgets)
 
 # Creating the UI
 UI<-shinyUI(
@@ -14,6 +15,10 @@ UI<-shinyUI(
         textInput("age","Enter your age",""),
         radioButtons("gender","Choose your gender","Male",choices = c("Male","Female")),
         sliderInput("height","Select your height",min = 0,max = 3,value = 2,step = 0.5),
+        pickerInput("country","choose your country of residence",
+                    selected ="Kenya",options = list(`actions-box`=T),
+                    choices = c("Kenya","Uganda","Tanzania"),multiple = T),
+        
         submitButton("Submit")
         
       ),
@@ -21,7 +26,8 @@ UI<-shinyUI(
         textOutput("myname"),
         textOutput("myage"),
         textOutput("mygender"),
-        textOutput("myheight")
+        textOutput("myheight"),
+        textOutput("mycountry")
         
         
       )
@@ -35,6 +41,7 @@ server<-function(input,output,session){
   output$myage=renderText({paste("Your age is:",input$age,"Years")})
   output$mygender<-renderText({paste("Your gender is:",input$gender)})
   output$myheight<-renderText({paste("My height is:",input$height,"M")})
+  output$mycountry<-renderText({paste("I am from this country:",input$country)})
   
 }
 
