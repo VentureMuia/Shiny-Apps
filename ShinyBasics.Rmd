@@ -9,3 +9,126 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+```{r}
+# install the package
+#install.packages("shiny")
+
+# importing the packages
+library(shiny)
+library(shinyWidgets)
+
+# Creating the UI
+UI<-shinyUI(
+  fluidPage(
+    titlePanel(title = "This is my first shiny application"),
+    sidebarLayout(
+      sidebarPanel(h3("Enter personal information"),
+        textInput("name","Enter your name",""),
+        textInput("age","Enter your age",""),
+        radioButtons("gender","Choose your gender","Male",choices = c("Male","Female")),
+        sliderInput("height","Select your height",min = 0,max = 3,value = 2,step = 0.5),
+        pickerInput("country","choose your country of residence",
+                    selected ="Kenya",options = list(`actions-box`=T),
+                    choices = c("Kenya","Uganda","Tanzania"),multiple = T),
+        
+        submitButton("Submit")
+        
+      ),
+      mainPanel(h3("Display Personal Information"),
+        textOutput("myname"),
+        textOutput("myage"),
+        textOutput("mygender"),
+        textOutput("myheight"),
+        textOutput("mycountry")
+        
+        
+      )
+    )
+    
+  )
+)
+
+server<-function(input,output,session){
+  output$myname=renderText({paste("My name is:",input$name)})
+  output$myage=renderText({paste("Your age is:",input$age,"Years")})
+  output$mygender<-renderText({paste("Your gender is:",input$gender)})
+  output$myheight<-renderText({paste("My height is:",input$height,"M")})
+  output$mycountry<-renderText({paste("I am from this country:",input$country)})
+  
+}
+
+shinyApp(UI,server)
+ 
+```
+
+
+
+```{r}
+# Importing the packages
+library(shiny)
+library(shinyWidgets)
+
+# creating the UI
+ui<-shinyUI(fluidPage(
+  titlePanel(title="using renderplot()"),
+  sidebarLayout(
+    sidebarPanel(),
+    mainPanel()
+  )
+))
+
+
+server<-function(input,output,session){
+  
+}
+
+shinyApp(ui,server)
+
+```
+```{r}
+library(ggplot2)
+library(shiny)
+
+# use selectinput() for the columns
+UI<-shinyUI(fluidPage(
+  titlePanel(title="Use selectinput for the columns"),
+  sidebarLayout(
+    sidebarPanel(
+      selectInput("var","select the variable from the dataset",
+                  choices = c("Sepal.Length"=1,"Petal.Width"=2,
+                              "Sepal.Width"=3,"Petal.Length"=4),
+                  selected = "Sepal.Length"),
+      sliderInput("brek","Select the BINS of histogram",
+                  min=5,max=10,value = 6),
+      radioButtons("color","Select the color of your histogram",
+                   choices=c("green","yellow","blue"),
+                   selected = "green")
+      
+    ),
+    mainPanel(
+      plotOutput("myplot")
+    )
+  )
+  
+)
+)
+
+server<-function(input,output,session){
+  colm<-reactive({as.numeric(input$var)})
+  
+  output$myplot<-renderPlot({
+    ggplot(iris,aes(iris[,colm()]))+
+      geom_histogram(bins = input$brek,color="black",fill=input$color)+
+      stat_function(fun = function(x) dnorm(x, mean = mean, sd = sd) * n * binwidth,
+    color = "darkred", size = 1)+
+      labs(title=paste("Histogram",names(input$var)),
+           x=names(input$var),
+           y="Frequency count")
+  })
+  
+}
+
+
+shinyApp(UI,server)
+```
+
