@@ -67,6 +67,7 @@ shinyApp(UI,server)
 # Importing the packages
 library(shiny)
 library(shinyWidgets)
+library(dplyr)
 
 # creating the UI
 ui<-shinyUI(fluidPage(
@@ -88,6 +89,7 @@ shinyApp(ui,server)
 ```{r}
 library(ggplot2)
 library(shiny)
+library(dplyr)
 
 # use selectinput() for the columns
 UI<-shinyUI(fluidPage(
@@ -99,31 +101,59 @@ UI<-shinyUI(fluidPage(
                               "Sepal.Width"=3,"Petal.Length"=4),
                   selected = "Sepal.Length"),
       sliderInput("brek","Select the BINS of histogram",
-                  min=5,max=10,value = 6),
+                  min=20,max=60,value = 30),
       radioButtons("color","Select the color of your histogram",
                    choices=c("green","yellow","blue"),
                    selected = "green")
       
     ),
     mainPanel(
-      plotOutput("myplot")
+      tabsetPanel(type="tab",
+                  tabPanel("Summary",verbatimTextOutput("sum")),
+                  tabPanel("Structure",verbatimTextOutput("str")),
+                  tabPanel("Data",tableOutput("data")),
+                  tabPanel("Plot",plotOutput("myplot"))
+                  
+                  )
     )
   )
-  
+    
 )
 )
 
 server<-function(input,output,session){
   colm<-reactive({as.numeric(input$var)})
   
-  output$myplot<-renderPlot({
-    ggplot(iris,aes(iris[,colm()]))+
-      geom_histogram(bins = input$brek,color="black",fill=input$color)+
-      stat_function(fun = function(x) dnorm(x, mean = mean, sd = sd) * n * binwidth,
-    color = "darkred", size = 1)+
-      labs(title=paste("Histogram",names(input$var)),
-           x=names(input$var),
-           y="Frequency count")
+  output$data<-renderTable({
+    iris[colm()]
+  })
+  
+  output$str<-renderPrint({
+    str(iris)
+  })
+  
+  output$sum<-renderPrint({
+    summary(iris)
+  })
+  
+  output$myplot <- renderPlot({
+   
+    hist(
+      iris[, colm()],
+      freq = FALSE,
+      col = input$color,
+      xlab = names(iris[colm()]),
+      main = "Colored histogram",
+      breaks = seq(0, max(iris[, colm()]), l = input$brek + 1)
+    )
+    
+    # add a normal distribution line in histogram
+    curve(dnorm(x,
+                mean = mean(iris[, colm()]),
+                sd = sd(iris[, colm()])),
+          add = TRUE,
+          col = "red",
+          lwd=3) #line
   })
   
 }
@@ -131,4 +161,3 @@ server<-function(input,output,session){
 
 shinyApp(UI,server)
 ```
-
