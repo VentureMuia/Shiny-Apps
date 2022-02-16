@@ -229,7 +229,11 @@ UI<-shinyUI(fluidPage(
                   max=10,
                   value = 6,
                   step = 1),
-      actionButton("act","Update Observations!")
+      actionButton("act","Update Observations!"),
+      
+      # Include image
+      h6("Powered by"),
+      img(src="R.png",height=50,width=50)
       
     ),
     mainPanel(
@@ -250,8 +254,9 @@ server<-function(input,output,session){
   
   output$head<-renderTable({
     # isolate is always used with the actionButton
-    # It prevents reactivity!
+    # It controls reactivity!
     # What is to be controlled has to be within the isolate function
+    
     input$act
     isolate(head(get(input$data),n=input$obs))
   })
