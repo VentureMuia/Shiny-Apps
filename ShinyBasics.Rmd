@@ -165,6 +165,98 @@ shinyApp(UI,server)
 # How to use the renderUI() function in server 
 
 ```{r}
+library(shiny)
+UI<-shinyUI(fluidPage(
+  titlePanel(title = "How to use the renderUI ()"),
+  sidebarLayout(
+    sidebarPanel(
+      selectInput("data","Choose the dataset",
+                  choices = c("iris","mtcars","trees"),
+                  selected = "iris"),
+      uiOutput("vx"),
+      uiOutput("vy")
+    ),
+    mainPanel(plotOutput("plot"))
+  )
+))
 
+server<-function(input,output,session){
+  # Creating the var reactive 
+  var<-reactive({
+    switch(
+    input$data,
+    "iris"=names(iris),
+    "mtcars"=names(mtcars),
+    "trees"=names(trees)
+    )
+  })
+  
+  
+  output$vx<-renderUI({
+    selectInput("variablex","Select the variable (X)",choices=var())
+  })
+  
+  output$vy<-renderUI({
+    selectInput("variabley","Select the variable (Y)",choices=var())
+  })
+  
+  output$plot<-renderPlot({
+    attach(get(input$data))
+    plot(x=get(input$variablex),y=get(input$variabley),
+         xlab=input$variablex,
+         ylab=input$variabley)
+  })
+}
+
+shinyApp(UI,server)
+
+```
+
+# Making use of isolate() and actionButton()
+
+```{r}
+library(shiny)
+
+UI<-shinyUI(fluidPage(
+  titlePanel(title="Isolate and actionButton"),
+  sidebarLayout(
+    sidebarPanel(
+      selectInput("data","select your dataset",
+                  choices=c("iris","mtcars","trees"),
+                  selected = "iris"),
+      numericInput("obs","select the number of observations",
+                  min = 5,
+                  max=10,
+                  value = 6,
+                  step = 1),
+      actionButton("act","Update Observations!")
+      
+    ),
+    mainPanel(
+      # Print the structure of the data selected
+      verbatimTextOutput("str"),
+      
+      # Print the head of the data selected
+      tableOutput("head")
+    )
+  )
+))
+
+server<-function(input,output,session){
+  # print the structure of the dataset
+  output$str<-renderPrint({
+    str(get(input$data))
+  })
+  
+  output$head<-renderTable({
+    # isolate is always used with the actionButton
+    # It prevents reactivity!
+    # What is to be controlled has to be within the isolate function
+    input$act
+    isolate(head(get(input$data),n=input$obs))
+  })
+}
+
+shinyApp(UI,server)
 ```
 
