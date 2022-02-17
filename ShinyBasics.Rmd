@@ -232,8 +232,13 @@ UI<-shinyUI(fluidPage(
       actionButton("act","Update Observations!"),
       
       # Include image
+      # only applicable to R scripts
       h6("Powered by"),
-      img(src="R.png",height=50,width=50)
+      tags$img(src="R.png",height=50,width=50),
+      tags$video(src="R.mp4",type="video/mp4",
+                 width="350px",height="350px",
+                 controls="controls")
+      
       
     ),
     mainPanel(
