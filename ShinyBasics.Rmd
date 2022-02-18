@@ -289,13 +289,14 @@ UI<-shinyUI(fluidPage(
                                    "select the desired dataset",
                                    choices=ls('package:datasets'),
                                    selected="cars"),
-                       radioButtons("choice","Choose an option",
+                       radioButtons("choice",
+                                    "Choose an option",
                                    choices=c("Dataset"=1,
                                              "Structure"=2,
                                              "Summary"=3))
                        
                        ),
-      conditionalPanel(condition = "input.tabselected=='plot'",
+      conditionalPanel(condition = "input.tabselected=='Plot'",
                        uiOutput("varx"),uiOutput("vary"))
     ),
     mainPanel(
@@ -317,7 +318,7 @@ UI<-shinyUI(fluidPage(
 
 server<-function(input,output,session){
   data<-reactive({
-    get(input$data)
+    get(input$dataset)
   })
   
   output$dat<-renderPrint({
@@ -337,18 +338,17 @@ server<-function(input,output,session){
   
   # to output the structure of the dataset
   output$str<-renderPrint({
-    str(get(input$data()))
+    str(get(input$dataset))
   })
   
   # for summary
   output$sum<-renderPrint({
-    summary(get(input$data()))
+    summary(input$dataset)
   })
   
   # for the plot
   output$plot<-renderPlot({
-    ggplot2::ggplot(data(),
-                    aes_string(x=input$variablex,y=input$variabley))+
+    ggplot(data(),aes_string(x=input$variablex,y=input$variabley))+
       geom_point()
   })
   
@@ -357,4 +357,56 @@ server<-function(input,output,session){
 
 shinyApp(UI,server)
 ```
+# Reactive values()
+With ReactiveValues(), create a list of objects that can be manipulated within a reactive context in shiny.
+
+```{r}
+library(shiny)
+UI<-shinyUI(fluidPage(
+  titlePanel(title = "Reactive values"),
+  sidebarLayout(
+    sidebarPanel(),
+    mainPanel(
+      tags$b("simple counter using ReactiveValues()"),
+      br(),
+      br(),
+      actionButton("add1","+ 1"),
+      br(),
+      br(),
+      actionButton("sub1","- 1"),
+      br(),
+      br(),
+      actionButton("reset","Set to 0"),
+      br(),
+      br(),
+      textOutput("count")
+    )
+  )
+))
+
+
+server<-function(input,output,session){
+  counter<-reactiveValues({
+    counter_value=0
+  })
+  
+  # if the add button is clicked, increment the value by 1 and update it
+  observeEvent(input$add1,
+               {counter$counter_value<-counter$countervalue+1})
+  # if the sub button is clicked, decrements the value by 1 and update it
+  observeEvent(input$sub1,
+               {counter$counter_value<-counter$countervalue-1})
+  
+# if the reset button is clicked, set the counter to zero
+  observeEvent(input$reset,
+               {counter$counter_value<-0})
+  # prints the latest stored value in the reactivevalues object
+  output$count<-renderText({
+    paste("The counter values is",counter$counter_value)
+  })
+}
+
+shinyApp(UI,server)
+```
+
 
