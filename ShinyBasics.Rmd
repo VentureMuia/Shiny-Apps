@@ -386,21 +386,22 @@ UI<-shinyUI(fluidPage(
 
 
 server<-function(input,output,session){
-  counter<-reactiveValues({
+  # Defining and initializing the reactive Values object
+  counter<-reactiveValues(
     counter_value=0
-  })
+  )
   
   # if the add button is clicked, increment the value by 1 and update it
   observeEvent(input$add1,
-               {counter$counter_value<-counter$countervalue+1})
+               {counter$counter_value<-counter$counter_value+1})
   # if the sub button is clicked, decrements the value by 1 and update it
   observeEvent(input$sub1,
-               {counter$counter_value<-counter$countervalue-1})
+               {counter$counter_value<-counter$counter_value-1})
   
 # if the reset button is clicked, set the counter to zero
   observeEvent(input$reset,
                {counter$counter_value<-0})
-  # prints the latest stored value in the reactivevalues object
+  # prints the latest stored value in the Reactivevalues object
   output$count<-renderText({
     paste("The counter values is",counter$counter_value)
   })
@@ -408,5 +409,59 @@ server<-function(input,output,session){
 
 shinyApp(UI,server)
 ```
+# Multiple Buttons with reactiveValues()
+
+```{r}
+# With reactiveValues(), you can create your own reactive values.
+
+library(shiny)
+UI<-shinyUI(fluidPage(
+  titlePanel("reactiveValues with multiple values"),
+  mainPanel(
+    actionButton("act1","Button1"),
+    br(),
+    br(),
+    actionButton("act2","Button2"),
+    br(),
+    br(),
+    actionButton("act3","Button3"),
+    br(),
+    br(),
+    textOutput("display")
+  )
+))
+
+server<-function(input,output,session){
+  values<-reactiveValues(a=0,b=0,c=0)
+  
+  observeEvent(input$act1,{
+    values$a=1
+    values$b=0
+    values$c=0
+  })
+  
+  observeEvent(input$act2,{
+    values$a=0
+    values$b=1
+    values$c=0
+  })
+  observeEvent(input$act3,{
+    values$a=0
+    values$b=0
+    values$c=1
+  })
+  
+  
+  output$display<-renderText({
+    if(values$a) paste("Button # 1 selected")
+    else if(values$b) paste("Button # 2 selected")
+    else if(values$c) paste("Button # 3 selected")
+    else return("")
+  })
+}
+
+shinyApp(UI,server)
+```
+
 
 
