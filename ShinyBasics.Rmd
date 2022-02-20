@@ -453,15 +453,91 @@ server<-function(input,output,session){
   
   
   output$display<-renderText({
-    if(values$a) paste("Button # 1 selected")
-    else if(values$b) paste("Button # 2 selected")
-    else if(values$c) paste("Button # 3 selected")
+    if(values$a==1) paste("Button # 1 selected")
+    else if(values$b==1) paste("Button # 2 selected")
+    else if(values$c==1) paste("Button # 3 selected")
     else return("")
   })
 }
 
 shinyApp(UI,server)
 ```
+
+# Grid layout in shiny
+
+```{r}
+library(shiny)
+library(ggplot2)
+dataset<-diamonds
+
+UI<-shinyUI(fluidPage(
+  titlePanel(title = "Diamonds Explorer"),
+  h4("Introducing fluidRow() and fluidColumn()"),
+  p("You can move columns to the right by adding the offset parameter to the column function. Each unit of the offset increases the left margin of the column by a whole column.
+    To create rows within a grid you use the fluidRow() and to create columns within the rows you use column function"),
+  
+  # initializing the row
+  fluidRow(
+    column(4,
+           sliderInput("SampleSize","Sample Size",
+                       min=1,max=nrow(dataset),
+                       value=min(1000,nrow(dataset)),
+                       step=500,round = 0),
+           br(),
+           checkboxInput("jitter","jitter"),
+           checkboxInput("smooth","smooth")
+           ),
+    column(4,
+           selectInput("x","y",names(dataset)),
+           selectInput("y","y",names(dataset),names(dataset)[[2]]),
+           selectInput("color","Color",c("None",names(dataset)))
+          
+           ),
+    column(4,
+           selectInput("facet_now","Facet Row",c(None=".",names(dataset)))
+           
+           
+           )
+  
+  ), 
+  # End of fluidRow() and grid
+  hr(),
+  plotOutput("plot")
+))
+
+server<-function(input,output,session){
+  #Creating the reactive dataset
+  dataset<-reactive({
+    diamonds[sample(nrow(diamonds),input$SampleSize),]
+  })
+  
+  output$plot<-renderPlot({
+    p<-ggplot(dataset(),aes_string(x=input$x,y=input$y))+
+      geom_point()
+    if(input$color!='None')
+      p<-p+aes_string(color=input$color)
+    facets<-paste(input$facet_row,'~',input$facet_col)
+    
+    if(facets !='.~.')
+      p<-p+facet_grid(facets)
+    if(input$jitter)
+      p<-p+geom_point()
+    if(input$smooth)
+      p<-p+geom_smooth()
+    print(p)
+      
+  })
+  
+}
+
+shinyApp(UI,server)
+
+
+
+
+
+```
+
 
 
 
