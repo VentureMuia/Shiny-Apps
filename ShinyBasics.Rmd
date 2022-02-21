@@ -538,6 +538,7 @@ shinyApp(UI,server)
 
 ```{r}
 library(shiny)
+library(dashboardthemes)
 
 #Create a data frame with the dates
 set.seed(123)
@@ -594,7 +595,97 @@ server<-function(input,output,session){
 
 shinyApp(UI,server)
 ```
+# Introducing the shinydashboard
+
+```{r}
+library(shinydashboard)
+library(dashboardthemes) # for customizing and styling the application
+# Creating the header
+
+header<-dashboardHeader( title = "Shinydashboard",
+                         titleWidth = 700)
+# creating the sidebar
+sidebar<-dashboardSidebar(
+  sidebarMenu(
+    menuItem("dash",icon=icon("chart-line"),
+             menuSubItem("chartone",
+                         tabName = "charts",
+                         icon=icon("line-chart")),
+             menuSubItem("charttwo",
+                         tabName = "line",
+                         icon=icon("clipboard"))
+             
+             ),
+    menuItem("item",tabName = "Items",icon = icon("home"))
+  )
+)
+
+# creating the body
+body<-dashboardBody(
+  shinyDashboardThemes(theme="grey_dark"),
+  tabItems(
+    tabItem(tabName = "charts",
+            box(background = "green",width = 12)
+            ),
+    tabItem(tabName = "line",
+            box(background = "blue",width = 12)
+            ),
+    tabItem(tabName = "Items",
+            box(background = "red",width=6),
+            box(background = "red",width=6)
+            )
+  )
+)
+
+# Assembling the ui
+UI<-dashboardPage(header,sidebar,body)
+
+# creating the server
+server<-function(input,output,session){
+  
+}
+
+# Running the application
+shinyApp(UI,server)
+```
+# Creating the tabboxes()
+
+```{r}
+library(shinydashboard)
+library(shiny)
+library(dashboardthemes)
 
 
+header<-dashboardHeader(title = "Using of tab Boxes")
+sidebar<-dashboardSidebar(sidebarMenu(
+  menuItem("tabBox",tabName = "charts",icon = icon("check"))
+))
+
+body<-dashboardBody(tabItems(
+  tabItem(tabName = "charts",
+          tabBox(id="tabchart1",
+                 tabPanel("Tab1"),
+                 tabPanel("Tab2"),
+                 tabPanel("Tab3"),
+                 ),
+          tabBox(id="tabchart2",side="right",
+                 tabPanel("Tab1"),
+                 tabPanel("Tab2"),
+                 tabPanel("Tab3")
+                 
+                 )
+          )
+))
+
+# Assembling the ui
+UI<-dashboardPage(header,sidebar,body)
+
+server<-function(input,output,session){
+  
+}
+
+shinyApp(UI,server)
+
+```
 
 
