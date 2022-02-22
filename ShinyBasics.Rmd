@@ -657,12 +657,30 @@ library(dashboardthemes)
 
 
 header<-dashboardHeader(title = "Using of tab Boxes")
-sidebar<-dashboardSidebar(sidebarMenu(
-  menuItem("tabBox",tabName = "charts",icon = icon("check"))
+sidebar<-dashboardSidebar(
+  sidebarMenu(
+    # color the icon yellow
+    menuItem("tabBox",
+             tabName = "charts",
+             icon = icon("tachometer",
+             class="mystyle")),
+    tags$style(".mystyle {color:yellow;}"),
+    
+    # Using pulse to rotate the icon 8 steps
+    menuItem("Settings",
+             tabName = "Settings",
+             icon=icon("cog",class="fa-pulse")),
+    
+    #Using spin to rotate the icon
+    menuItem("charts",
+             tabName = "Charts",
+             icon=icon("line-chart",class="fa-spin")
+             )
 ))
-
-body<-dashboardBody(tabItems(
-  tabItem(tabName = "charts",
+ 
+body<-dashboardBody(
+  tabItems(
+    tabItem(tabName = "charts",
           tabBox(id="tabchart1",
                  tabPanel("Tab1"),
                  tabPanel("Tab2"),
